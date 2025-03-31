@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(
     name="semantic_text_segmentation",
-    version="1.0",
+    version="1.1",
     description="Split a text into semantically coherent subtexts",
     author="Nel Ruigrok",
     author_email="nelruigrok@nieuwsmonitor.org",
