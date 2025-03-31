@@ -2,8 +2,10 @@
 
 # This code is based on https://github.com/gdamaskinos/unsupervised_topic_segmentation/blob/main/core.py
 
+from ast import Tuple
+from collections import namedtuple
 import csv
-from typing import Sequence
+from typing import Iterable, NamedTuple, Sequence
 from sentence_transformers import SentenceTransformer
 import numpy as np
 
@@ -72,6 +74,30 @@ def split_list(a, n):
     return (a[i * k + min(i, m) : (i + 1) * k + min(i + 1, m)] for i in range(min(len(a), n)))
 
 
+def get_segments(
+    sentences, model, tiling_comparison_window, smoothing_passes, smoothing_window, relative_depth_threshold
+):
+    embeddings = model.encode(sentences)
+    scores = list(block_comparison_score(embeddings, k=tiling_comparison_window))
+    scores = smooth(scores, n=smoothing_passes, s=smoothing_window)
+
+    depth_scores = depth_score(scores)
+
+    segments = depth_score_to_topic_change_indexes(depth_scores, relative_depth_threshold=relative_depth_threshold)
+
+    # to get sentence index from the depth scores, "pad" the index with
+    # the sentence comparison window plus one because depth calc doesn't use the edges
+    segments = [x + tiling_comparison_window + 1 for x in segments]
+
+    return segments
+
+
+class Segment(NamedTuple):
+    start: int
+    end: int
+    sentences: Sequence[str]
+
+
 def segment_text(
     sentences: Sequence[str],
     model: SentenceTransformer,
@@ -80,7 +106,7 @@ def segment_text(
     smoothing_passes=2,
     smoothing_window=1,
     relative_depth_threshold=0.6
-):
+) -> Iterable[Segment]:
     """Segement a text into semantically coherent subtexts
 
     :param sentences: a sequence of sentences (strings)
@@ -100,6 +126,14 @@ def segment_text(
 
     # to get sentence index from the depth scores, "pad" the index with
     # the sentence comparison window plus one because depth calc doesn't use the edges
-    segments = [x + tiling_comparison_window + 1 for x in segments]
+    segments = get_segments(
+        sentences,
+        model,
+        tiling_comparison_window=tiling_comparison_window,
+        smoothing_passes=smoothing_passes,
+        smoothing_window=smoothing_window,
+        relative_depth_threshold=relative_depth_threshold,
+    )
 
-    return segments
+    for start, end in zip([0] + segments, segments + [len(sentences) + 1]):
+        yield start, end, sentences[start:end]

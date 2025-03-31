@@ -10,7 +10,7 @@ pip isntall semantic_text_segmentation
 ```
 
 Call the function `segment_text` with a list of sentences and a SentenceTransformer model. 
-This will output the index of the last sentence of each segment.
+This will output the start and end indices and the list of sentences for each segment
 See [test.py](test.py) for an example script.
 
 # Credits
