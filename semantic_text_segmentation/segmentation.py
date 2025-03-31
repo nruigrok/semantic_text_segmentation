@@ -2,9 +2,6 @@
 
 # This code is based on https://github.com/gdamaskinos/unsupervised_topic_segmentation/blob/main/core.py
 
-from ast import Tuple
-from collections import namedtuple
-import csv
 from typing import Iterable, NamedTuple, Sequence
 from sentence_transformers import SentenceTransformer
 import numpy as np
