@@ -132,5 +132,7 @@ def segment_text(
         relative_depth_threshold=relative_depth_threshold,
     )
 
-    for start, end in zip([0] + segments, segments + [len(sentences) + 1]):
-        yield start, end, sentences[start:end]
+    return [
+        Segment(start=start, end=end, sentences=sentences[start:end])
+        for start, end in zip([0] + segments, segments + [len(sentences) + 1])
+    ]
