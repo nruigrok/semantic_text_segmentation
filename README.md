@@ -6,7 +6,7 @@ Split a text into semantically coherent subtexts
 Install with 
 
 ```
-pip isntall semantic_text_segmentation
+pip install semantic_text_segmentation
 ```
 
 Call the function `segment_text` with a list of sentences and a SentenceTransformer model. 
