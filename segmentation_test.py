@@ -249,7 +249,7 @@ if __name__ == "__main__":
     conn.create_index(index)
     conn.set_fields(index, FIELDS)
 
-    folder = Path("/home/nel/alm_data/text/")
+    folder = Path("~/data/whisper_out/")
     txt_files = list(folder.rglob("*.txt"))
     logger.info("Found %d txt files", len(txt_files))
 
