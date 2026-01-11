@@ -93,7 +93,12 @@ class OllamaModel:
         semantic_text_segmentation verwacht een model met een .encode()
         die een numpy-array teruggeeft met embeddings per zin.
         """
+        import json
+        print(f"Embedding {len(sentences)} sentences, total length={len(json.dumps(sentences))}")
+        # truncate=True doesn't seem to work, so truncate long sentences ourselves
+        sentences = [s[:500] for s in sentences]
         resp = ollama.embed(model=self.model, input=sentences)
+
         return np.array(resp["embeddings"], dtype=np.float32)
 
 
@@ -241,7 +246,7 @@ if __name__ == "__main__":
     logging.getLogger("amcat4py").setLevel(logging.WARNING)
     logging.getLogger("ollama").setLevel(logging.WARNING)
 
-    conn = AmcatClient("http://localhost/amcat")
+    conn = AmcatClient("http://localhost:5001")
     index = "svdj2024_audio"
 
     # Let op: delete_index alleen gebruiken als je echt opnieuw wilt beginnen!
@@ -249,13 +254,14 @@ if __name__ == "__main__":
     conn.create_index(index)
     conn.set_fields(index, FIELDS)
 
-    folder = Path("~/data/whisper_out/")
+    folder = Path("/home/nel/data/whisper_out/")
     txt_files = list(folder.rglob("*.txt"))
     logger.info("Found %d txt files", len(txt_files))
-
+    print("Yo!", len(txt_files))
     model = OllamaModel("mxbai-embed-large")
 
     for file in txt_files:
+        print(file)
         meta = parse_metadata(file)
         raw_text = file.read_text(encoding="utf-8", errors="replace").strip()
         if not raw_text:
